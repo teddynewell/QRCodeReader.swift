@@ -175,6 +175,9 @@ public class QRCodeReaderViewController: UIViewController {
 
       connection.videoOrientation = QRCodeReader.videoOrientation(deviceOrientation: orientation, withSupportedOrientations: supportedInterfaceOrientations)
     }
+    
+    let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(setFocusPoint))
+    readerView.displayable.cameraView.addGestureRecognizer(tapRecognizer)
 
     readerView.displayable.cameraView.layer.insertSublayer(codeReader.previewLayer, at: 0)
 
@@ -218,4 +221,11 @@ public class QRCodeReaderViewController: UIViewController {
   func toggleTorchAction(_ button: ToggleTorchButton) {
     codeReader.toggleTorch()
   }
+    
+    func setFocusPoint(_ tapRecognizer: UITapGestureRecognizer) {
+        let tapPoint = tapRecognizer.location(in: readerView.displayable.cameraView)
+        let pointInLayer = readerView.displayable.cameraView.layer.convert(tapPoint, to: codeReader.previewLayer)
+        let focusPoint = codeReader.previewLayer.captureDevicePointOfInterest(for: pointInLayer)
+        codeReader.setFocus(focusPoint)
+    }
 }

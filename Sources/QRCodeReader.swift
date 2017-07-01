@@ -130,19 +130,49 @@ public final class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegat
     switch withCaptureDevicePosition {
     case .front:
       if let _frontDeviceInput = frontDeviceInput {
-        session.addInput(_frontDeviceInput)
+        addInput(_frontDeviceInput)
       }
     case .back, .unspecified:
       if let _defaultDeviceInput = defaultDeviceInput {
-        session.addInput(_defaultDeviceInput)
+        addInput(_defaultDeviceInput)
       }
     }
-
-
+    
     metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
     metadataOutput.metadataObjectTypes = metadataObjectTypes
     previewLayer.videoGravity          = AVLayerVideoGravityResizeAspectFill
   }
+    
+    private func addInput(_ input: AVCaptureDeviceInput) {
+        if let device = input.device {
+            do {
+                try device.lockForConfiguration()
+                if device.isAutoFocusRangeRestrictionSupported {
+                    device.autoFocusRangeRestriction = .near
+                }
+                device.unlockForConfiguration()
+            } catch {
+                NSLog("Failed to configure preferred settings for new input device")
+            }
+        }
+        session.addInput(input)
+    }
+    
+    public func setFocus(_ focusPoint: CGPoint) {
+        guard let currentInput = session.inputs.first as? AVCaptureDeviceInput,
+            let device = currentInput.device,
+            device.isFocusPointOfInterestSupported else {
+                return
+        }
+        do {
+            try device.lockForConfiguration()
+            device.focusPointOfInterest = focusPoint
+            device.unlockForConfiguration()
+        } catch {
+            NSLog("Failed to configure focus point for current input device")
+        }
+    }
+
 
   /// Switch between the back and the front camera.
   @discardableResult
@@ -153,8 +183,9 @@ public final class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegat
       if let _currentInput = session.inputs.first as? AVCaptureDeviceInput {
         session.removeInput(_currentInput)
 
-        let newDeviceInput = (_currentInput.device.position == .front) ? defaultDeviceInput : _frontDeviceInput
-        session.addInput(newDeviceInput)
+        if let newDeviceInput = (_currentInput.device.position == .front) ? defaultDeviceInput : _frontDeviceInput {
+            addInput(newDeviceInput)
+        }
       }
 
       session.commitConfiguration()
