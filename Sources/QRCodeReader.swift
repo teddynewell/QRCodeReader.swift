@@ -168,6 +168,7 @@ public final class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegat
         do {
             try device.lockForConfiguration()
             device.focusPointOfInterest = focusPoint
+            device.focusMode = .autoFocus
             device.unlockForConfiguration()
         } catch {
             NSLog("Failed to configure focus point for current input device")
