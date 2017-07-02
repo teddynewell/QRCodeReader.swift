@@ -223,16 +223,9 @@ public class QRCodeReaderViewController: UIViewController {
   }
     
     func setFocusPoint(_ tapRecognizer: UITapGestureRecognizer) {
-        NSLog("Did ask to set focus")
         let tapPoint = tapRecognizer.location(in: readerView.view)
-        NSLog("Location of tap: \(tapPoint)")
-        NSLog("Tap recognized in view with frame: \(readerView.view.frame)")
         let pointInLayer = readerView.view.layer.convert(tapPoint, to: codeReader.previewLayer)
-        NSLog("Point in camera layer: \(pointInLayer)")
-        NSLog("Tap converted from layer: \(readerView.displayable.cameraView.layer.frame)...")
-        NSLog("... to layer: \(codeReader.previewLayer.frame)")
         let focusPoint = codeReader.previewLayer.captureDevicePointOfInterest(for: pointInLayer)
-        NSLog("Focus point: \(focusPoint)")
         codeReader.setFocus(focusPoint)
     }
 }

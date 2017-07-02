@@ -159,7 +159,6 @@ public final class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegat
     }
     
     public func setFocus(_ focusPoint: CGPoint) {
-        NSLog("Setting focus to \(focusPoint)")
         guard let currentInput = session.inputs.first as? AVCaptureDeviceInput,
             let device = currentInput.device,
             device.isFocusPointOfInterestSupported else {
@@ -168,7 +167,7 @@ public final class QRCodeReader: NSObject, AVCaptureMetadataOutputObjectsDelegat
         do {
             try device.lockForConfiguration()
             device.focusPointOfInterest = focusPoint
-            device.focusMode = .autoFocus
+            device.focusMode = .autoFocus // triggers the focus change
             device.unlockForConfiguration()
         } catch {
             NSLog("Failed to configure focus point for current input device")
