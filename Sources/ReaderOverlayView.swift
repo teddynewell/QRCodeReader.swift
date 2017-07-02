@@ -39,6 +39,14 @@ public final class ReaderOverlayView: UIView {
 
     return overlay
   }()
+    
+    private var redLine: CAShapeLayer = {
+        var line = CAShapeLayer()
+        line.strokeColor = UIColor.red.cgColor
+        line.lineWidth = 1
+        line.backgroundColor = UIColor.clear.cgColor
+        return line
+    }()
 
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -54,6 +62,7 @@ public final class ReaderOverlayView: UIView {
 
   private func setupOverlay() {
     layer.addSublayer(overlay)
+    layer.addSublayer(redLine)
   }
 
   var overlayColor: UIColor = UIColor.white {
@@ -79,5 +88,10 @@ public final class ReaderOverlayView: UIView {
     let offsetRect = innerRect.offsetBy(dx: 0, dy: 15)
 
     overlay.path  = UIBezierPath(roundedRect: offsetRect, cornerRadius: 5).cgPath
+    
+    let linePath = UIBezierPath()
+    linePath.move(to: CGPoint(x: offsetRect.minX, y: offsetRect.midY))
+    linePath.addLine(to: CGPoint(x: offsetRect.maxX, y: offsetRect.midY))
+    redLine.path = linePath.cgPath
   }
 }
